@@ -104,7 +104,36 @@ public class HttpStudentAPI
         response2.WriteStringAsync(JsonConvert.SerializeObject(student));
         return response2;
     }
-    
-    
 
+    [Function("GetAllGames")]
+    public HttpResponseData GetAllGames(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "games")] HttpRequestData req)
+    {
+        _logger.LogInformation("C# HTTP GET function processed a request.");
+        var games = _context.Games.ToArray();
+        var response = req.CreateResponse(HttpStatusCode.OK);
+        response.Headers.Add("Content-Type", "application/json");
+        response.WriteStringAsync(JsonConvert.SerializeObject(games));
+        return response;
+    }
+
+    [Function("GetGameById")]
+    public HttpResponseData GetGameById(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "games/{id}")] HttpRequestData req, int id)
+    {
+        _logger.LogInformation("C# HTTP GET function processed a request.");
+        var game = _context.Games.FindAsync(id).Result;
+        if (game == null)
+        {
+            var response = req.CreateResponse(HttpStatusCode.NotFound);
+            response.Headers.Add("Content-Type", "application/json");
+            response.WriteStringAsync("Not Found");
+            return response;
+        }
+        var response2 = req.CreateResponse(HttpStatusCode.OK);
+        response2.Headers.Add("Content-Type", "application/json");
+        response2.WriteStringAsync(JsonConvert.SerializeObject(game));
+        return response2;
+    }
+    
 }
